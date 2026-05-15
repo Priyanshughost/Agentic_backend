@@ -1,0 +1,92 @@
+# =========================
+# Dependencies
+# =========================
+node_modules/
+
+# =========================
+# Lock Files
+# =========================
+package-lock.json
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDE / Editor Files
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# Build / Cache
+# =========================
+dist/
+build/
+.cache/
+.temp/
+tmp/
+coverage/
+
+# =========================
+# Runtime Files
+# =========================
+*.pid
+*.seed
+*.pid.lock
+
+# =========================
+# LangChain / AI Artifacts
+# =========================
+*.sqlite
+*.db
+*.bin
+
+# =========================
+# Vector DB / Embeddings
+# =========================
+pinecone-cache/
+chroma/
+faiss_index/
+embeddings/
+
+# =========================
+# Uploads / Generated Files
+# =========================
+uploads/
+generated/
+exports/
+
+# =========================
+# Optional Large Data Ignore
+# Uncomment if needed
+# =========================
+# data/
+# ingestion/output/
+
+# =========================
+# Package Managers
+# =========================
+.pnpm-store/
+.npm/
+
+# =========================
+# Misc
+# =========================
+*.bak
+*.tmp
+*.temp
