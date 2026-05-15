@@ -1,7 +1,12 @@
 import readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import { graph } from "./graph/workflow.js";
-
+//API keys
+// PINECONE_API_KEY = "pcsk_2iJdUy_H1TVFa2uvnEzUJ6d8wYUx1f8YKPr4uWmwPfbFuv5mjeX6rYcr6DaA5psay61t5x";
+// PINECONE_INDEX = "players-ingestion";
+// PINECONE_ENVIRONMENT = "https://players-ingestion-anigqd9.svc.aped-4627-b74a.pinecone.io";
+// GROQ_API_KEY="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"
+// GOOGLE_API_KEY="AIzaSyCKqZ7qK85pKKfvU8zOdXeYJrLsZbGL9J4"
 async function runIPLGraph() {
     const rl = readline.createInterface({ input, output });
 
