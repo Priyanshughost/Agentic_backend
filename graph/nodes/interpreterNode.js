@@ -80,9 +80,36 @@ Generate hybrid or flexible semantic descriptions
 Example:
 Batting all-rounder Multi-dimensional cricketer Utility player
 
+
 ━━━━━━━━━━━━━━━━━━━━
-FILTER RULES
+PINECONE FILTER RULES:
 ━━━━━━━━━━━━━━━━━━━━
+
+
+- $eq → single scalar value
+- $ne → single scalar value
+- $in → array
+- $nin → array
+
+VALID:
+{{
+  "team": {{ "$eq": "CSK" }}
+}}
+
+VALID:
+{{
+  "nationality": {{ "$ne": "IND" }}
+}}
+
+VALID:
+{{
+  "team": {{"$in": ["CSK", "MI"] }}
+}}
+
+INVALID:
+{{
+  "nationality": {{ "$ne": ["IND"] }}
+}}
 
 ━━━━━━━━━━━━━━━━━━━━
 STRICT METADATA SCHEMA
@@ -198,59 +225,85 @@ Return ONLY valid JSON.
 
 Question: {question}
 Answer: {answer}
+
+IMPORTANT ROLE CONSISTENCY RULE:
+
+Generated semanticText MUST remain logically consistent
+with the already established player profile.
+
+If previous answers strongly imply the player is a bowler:
+- DO NOT generate batting-related semantic terms
+- DO NOT generate batter identities
+- DO NOT generate finisher/opening/anchor batter concepts
+
+If previous answers strongly imply the player is a batter:
+- DO NOT generate bowling-specialist concepts
+
+The semantic memory must evolve consistently as a stable player identity profile.
+
+━━━━━━━━━━━━━━━━━━━━
+CURRENT ESTABLISHED PLAYER PROFILE
+━━━━━━━━━━━━━━━━━━━━
+
+{semanticMemory}
+
+IMPORTANT:
+New semanticText MUST remain consistent with this evolving player profile.
+Do NOT introduce contradictory cricket identities.
 `);
 
 export async function interpreterNode(state) {
-    // console.log("\n\nEntering interpreter node\n\n", JSON.stringify(state), "\n\n")
-    const chain = prompt.pipe(gpt20b);
+  // console.log("\n\nEntering interpreter node\n\n", JSON.stringify(state), "\n\n")
+  const chain = prompt.pipe(gpt20b);
 
-    const response = await chain.invoke({
-        question: state.currentQuestion,
-        answer: state.latestAnswer,
-    });
+  const response = await chain.invoke({
+    question: state.currentQuestion,
+    answer: state.latestAnswer,
+    semanticMemory: state.semanticMemory || "",
+  });
 
-    let parsed;
-    try {
-        parsed = JSON.parse(response.content);
-    } catch (err) {
-        console.error("❌ Failed to parse interpreter JSON:", err);
-        return {
-            previousAnswers: state.latestAnswer,
-        };
-    }
-
-    const semanticText = parsed.semanticText?.trim() || "";
-    const filter = parsed.filter || {};
-
-    console.log("\n🧠 Semantic Query:\n", semanticText);
-    console.log("\n🧩 Pinecone Filter:\n", JSON.stringify(filter, null, 2));
-
+  let parsed;
+  try {
+    parsed = JSON.parse(response.content);
+  } catch (err) {
+    console.error("❌ Failed to parse interpreter JSON:", err);
     return {
-
-        // append semantic memory manually
-        semanticMemory: state.semanticMemory
-            ? `${state.semanticMemory}\n${semanticText}`
-            : semanticText,
-
-        // append interpreted facts manually
-        // interpretedFacts: [
-        //     ...(state.interpretedFacts || []),
-        //     {
-        //         semanticText,
-        //         filter,
-        //     },
-        // ],
-
-        // merge pinecone filters manually
-        pineconeFilter: {
-            ...(state.pineconeFilter || {}),
-            ...filter,
-        },
-
-        // append answers manually
-        previousAnswers: [
-            ...(state.previousAnswers || []),
-            state.latestAnswer,
-        ],
+      previousAnswers: state.latestAnswer,
     };
+  }
+
+  const semanticText = parsed.semanticText?.trim() || "";
+  const filter = parsed.filter || {};
+
+  console.log("\n🧠 Semantic Query:\n", semanticText);
+  console.log("\n🧩 Pinecone Filter:\n", JSON.stringify(filter, null, 2));
+
+  return {
+
+    // append semantic memory manually
+    semanticMemory: state.semanticMemory
+      ? `${state.semanticMemory}\n${semanticText}`
+      : semanticText,
+
+    // append interpreted facts manually
+    // interpretedFacts: [
+    //     ...(state.interpretedFacts || []),
+    //     {
+    //         semanticText,
+    //         filter,
+    //     },
+    // ],
+
+    // merge pinecone filters manually
+    pineconeFilter: {
+      ...(state.pineconeFilter || {}),
+      ...filter,
+    },
+
+    // append answers manually
+    previousAnswers: [
+      ...(state.previousAnswers || []),
+      state.latestAnswer,
+    ],
+  };
 }
